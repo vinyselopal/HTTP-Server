@@ -1,5 +1,8 @@
 const http = require('http')
 const options = {
+    host: '127.0.0.1',
+    port: 8000,
+    path: '/',
     method: 'POST',
     body: {
         "a": 1,
@@ -9,7 +12,7 @@ const options = {
         'Content-Type': 'application/json'
     }
 }
-const request = http.request('http://127.0.0.1:8000', options, (res) => {
+const request = http.request(options, (res) => {
     if (res.statusCode !== 200) {
         console.log(res.statusCode)
         res.resume()
