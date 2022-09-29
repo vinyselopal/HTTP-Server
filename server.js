@@ -12,23 +12,40 @@ function onClientConnection(sock) {
     console.log(`${sock.remoteAddress}:${sock.remotePort} Connected`)
     sock.on('data', function(data){
         console.log(`${sock.remoteAddress}:${sock.remotePort} Says : ${data.toString()} end xxxxxxx`)
-        // const [firstLine, ...restLines] = data.toString().split('\n')
-        // const [method, path, httpVersion] = firstLine.trim().split(' ')
-        // console.log('restLines', restLines)
-        // const headers = Object.fromEntries(restLines.map(a => a.split(':').map(a => a.trim()))
-        // .map(([name, ...rest]) => [name, rest.join(':')]))
+        const [firstLine, ...restLines] = data.toString().split('\n')
+        console.log('restLines', restLines)
+        const crlf = restLines.indexOf('\r')
+        const body = restLines.slice(crlf + 1)
+        console.log('body', body)
+        const [method, path, httpVersion] = firstLine.trim().split(' ')
+        const headers = Object.fromEntries(restLines.slice(0, crlf).map(a => a.split(':')
+        .map(a => a.trim()))
+        .map(([name, ...rest]) => [name, rest.join(':')]))
 
-        // const request = {
-        //     method,
-        //     path,
-        //     httpVersion,
-        //     headers
-        // }
+        const request = {
+            method,
+            path,
+            httpVersion,
+            headers
+        }
+        if (method === "GET") get()
+        else post()
 
-        // console.log(request)
-        // console.log(`HTTP/1.1 200 OK \n\nhello ${path.split('/')[1]}`)
-        sock.write(`HTTP/1.1 200 OK \n\n`)
-        sock.end((err) =>{console.log(err)})
+        function get () {
+            console.log(request)
+            console.log(`HTTP/1.1 200 OK \n\nhello`)
+            sock.write(`HTTP/1.1 200 OK \n\nhello`)
+            sock.end((err) =>{console.log(err)})
+        }
+        function post () {
+            console.log(request)
+            if (headers['Content-Type'] === "application/json") {
+                sock.write(`HTTP/1.1 200 OK \n\nhello ${JSON.parse(body.join('\n'))}`)
+            }
+            else sock.write(`HTTP/1.1 200 OK \n\nhello no body`)
+            sock.end((err) =>{console.log('closing error', err)})
+        }
+        
     })
     sock.on('close', function(){
         console.log(`${sock.remoteAddress}:${sock.remotePort} Terminated the connection`)
