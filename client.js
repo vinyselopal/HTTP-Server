@@ -1,24 +1,23 @@
+let postData = JSON.stringify({"data": 'This is request data'})
 const http = require('http')
 const options = {
     host: '127.0.0.1',
     port: 8000,
     path: '/',
     method: 'POST',
-    body: {
-        "a": 1,
-        "b": 2
-    },
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+		'Content-Length': Buffer.byteLength(postData)
     }
 }
 const request = http.request(options, (res) => {
-    if (res.statusCode !== 200) {
+	let data = ''
+	res.setEncoding('utf8');
+	if (res.statusCode !== 200) {
         console.log(res.statusCode)
         res.resume()
         return
     }
-    let data = ''
     res.on('data', (chunk) => {
         data += chunk // you can store chunk in string or byte form, here string
     })
@@ -27,10 +26,11 @@ const request = http.request(options, (res) => {
         console.log(data)
     })
 
-    console.log('end of request')
-    request.end()
-
-    request.on('error', (err) => {
-        console.error(`Encountered an error trying to make a request: ${err.message}`)
-    })
 })
+request.on('error', (err) => {
+	console.error(`Encountered an error trying to make a request: ${err.message}`)
+})
+request.write(postData, () => {
+	console.log("data wrtten")
+})
+request.end()
