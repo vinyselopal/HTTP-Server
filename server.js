@@ -10,48 +10,42 @@ server.listen(port, host, function () {
 
 function onClientConnection(sock) {
 	console.log(`${sock.remoteAddress}:${sock.remotePort} Connected`)
+	let requestData = ''
+
 	sock.on('data', function (data) {
-		console.log("data", data)
-		console.log(`${sock.remoteAddress}:${sock.remotePort} Says : ${data.toString()} end xxxxxxx`)
-		const [firstLine, ...restLines] = data.toString().split('\n')
-		console.log('firstLine', firstLine)
-		console.log('restLines', restLines)
-		const crlf = restLines.indexOf('\r')
-		const body = restLines.slice(crlf + 1)
-		console.log('body', body)
-		const [method, path, httpVersion] = firstLine.trim().split(' ')
-		const headers = Object.fromEntries(restLines.slice(0, crlf).map(a => a.split(':')
-			.map(a => a.trim()))
-			.map(([name, ...rest]) => [name, rest.join(':')]))
+		requestData += data.toString()
 
-		const request = {
-			method,
-			path,
-			httpVersion,
-			headers
+		const [headers, body, method, path, httpVersion] = (requestData) => {
+			const [firstLine, ...restLines] = requestData.toString().split('\n')
+			const crlfIndex = restLines.indexOf('\r')
+			const body = restLines.slice(crlfIndex + 1)
+			const [method, path, httpVersion] = firstLine.trim().split(' ')
+			const headers = Object.fromEntries(restLines.slice(0, crlfIndex).map(a => a.split(':')
+				.map(a => a.trim()))
+				.map(([name, ...rest]) => [name, rest.join(':')])
+			)
+			return [headers, body, method, path, httpVersion]
 		}
-		if (method === "GET") get()
-		else post(data)
-
-		function get() {
-			console.log(request)
-			sock.write(`HTTP/1.1 200 OK \n\nhello`)
-			sock.end((err) => { console.log(err) })
-		}
-		function post(data) {
-			console.log("post", body)
-			if (headers['Content-Type'] === "application/json") {
-				sock.write(`HTTP/1.1 200 OK \r\n ${JSON.parse(body.join('\n'))}`)
-			}
-			else sock.write(`HTTP/1.1 200 OK \n\nhello no body`)
-			sock.end((err) => { console.log('closing error', err) })
-		}
-
+		if (method === "GET") respondForGet()
+		else respondForPost()
 	})
+
+	function respondForGet() {
+		sock.end(`HTTP/1.1 200 OK\r\n\r\n\r\nget response from server`)
+	}
+
+	function respondForPost(body) {
+		if (headers['Content-Type'] === "application/json") {
+			sock.end(`HTTP/1.1 200 OK\r\n\r\n\r\n${body.toString()}`)
+		}
+		else sock.write(`HTTP/1.1 200 OK\r\n\r\n\r\n${body.toString()}`)
+	}
+
 	sock.on('close', function () {
-		console.log(`${sock.remoteAddress}:${sock.remotePort} Terminated the connection`)
+		console.log(`close${sock.remoteAddress}:${sock.remotePort} Terminated the connection`)
 	})
+
 	sock.on('error', function (error) {
-		console.error(`${sock.remoteAddress}:${sock.remotePort} COnnection Error ${error}`)
+		console.error(`error${sock.remoteAddress}:${sock.remotePort} Connection Error: ${error}`)
 	})
 }

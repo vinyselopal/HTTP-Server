@@ -1,36 +1,65 @@
-let postData = JSON.stringify({"data": 'This is request data'})
 const http = require('http')
-const options = {
-    host: '127.0.0.1',
-    port: 8000,
-    path: '/',
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-		'Content-Length': Buffer.byteLength(postData)
-    }
-}
-const request = http.request(options, (res) => {
-	let data = ''
-	res.setEncoding('utf8');
-	if (res.statusCode !== 200) {
-        console.log(res.statusCode)
-        res.resume()
-        return
-    }
-    res.on('data', (chunk) => {
-        data += chunk // you can store chunk in string or byte form, here string
-    })
-    res.on('close', () => {
-        console.log('Retrieved all data')
-        console.log(data)
-    })
 
-})
-request.on('error', (err) => {
-	console.error(`Encountered an error trying to make a request: ${err.message}`)
-})
-request.write(postData, () => {
-	console.log("data wrtten")
-})
-request.end()
+const handleResponse = (res) => {
+	let data = ''
+	// res.setEncoding('utf8');
+	// if (res.statusCode !== 200) {
+	// 	console.log(res.statusCode)
+	// 	res.resume()
+	// 	return
+	// }
+	res.on('data', (chunk) => {
+		data += chunk
+	})
+	res.on('end', () => {
+		console.log('Retrieved all data', data)
+	})
+}
+
+const makeGetResponse = () => {
+	const getOptions = {
+		hostname: 'localhost',
+		port: 8000,
+		path: '/',
+		method: 'GET'
+	}
+
+	const getRequest = http.request(getOptions, handleResponse)
+
+	request.on('error', (err) => {
+		console.error(`Error during request: ${err.message}`)
+	})
+
+	getRequest.end()
+}
+
+const makePostRequest = () => {
+	let postData = JSON.stringify({ "data": "This is request data" })
+	let contentLength = Buffer.byteLength(postData)
+
+	const postOptions = {
+		hostname: 'localhost',
+		port: 8000,
+		path: '/',
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'Content-Length': contentLength
+		}
+	}
+
+	const request = http.request(postOptions, handleResponse)
+
+	request.on('error', (err) => {
+		console.error(`Error during request: ${err.message}`)
+	})
+
+	request.write(postData, () => {
+		console.log("data wrtten")
+	})
+
+	request.end()
+}
+
+makeGetResponse()
+makePostRequest()
