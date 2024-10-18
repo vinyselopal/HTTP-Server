@@ -1,12 +1,15 @@
 const { requestParser } = require("./requestParser.js")
+const { bodyParser } = require("./bodyParser.js")
 const { responseBuilder } = require("./responseBuilder.js")
-const net = require('net')
 
-export const createServer = (requestHandler) => {
-	console.log(`${sock.remoteAddress}:${sock.remotePort} Connected`)
+const net = require('net')
+const { create } = require("domain")
+
+const createServer = (requestHandler) => {
 	let requestData = ''
 
 	function onClientConnection(sock) {
+		console.log(`${sock.remoteAddress}:${sock.remotePort} Connected`)
 		sock.on('close', function () {
 			console.log(`close${sock.remoteAddress}:${sock.remotePort} Terminated the connection`)
 		})
@@ -17,8 +20,8 @@ export const createServer = (requestHandler) => {
 			requestData += data.toString()
 
 			const request = requestParser(requestData)
-			const response = responseBuilder(request)
-
+			const response = responseBuilder(request, sock)
+			bodyParser(request)
 			requestHandler(request, response)
 		})
 	}
@@ -29,3 +32,5 @@ export const createServer = (requestHandler) => {
 		listen
 	}
 }
+
+module.exports = { createServer }

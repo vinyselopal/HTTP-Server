@@ -1,8 +1,5 @@
-export const responseBuilder = (request, response) => {
-	const send = (body) => {
-		sock.end(`${response.httpVersion} ${response.status}\r\n${response.headers}\r\n\r\n${body}`)
-	}
-	return {
+const responseBuilder = (request, sock) => {
+	const response = {
 		body: {},
 		headers: {
 			status: null,
@@ -10,4 +7,10 @@ export const responseBuilder = (request, response) => {
 		},
 		send
 	}
+	const send = (body) => {
+		sock.end(`HTTP/1.1 200 OK \r\n\r\n\r\n${body}`)
+	}
+	return response
 }
+
+module.exports = { responseBuilder }

@@ -1,4 +1,4 @@
-export const requestParser = (requestData) => {
+const requestParser = (requestData) => {
 	const [firstLine, ...restLines] = requestData.toString().split('\n')
 	const crlfIndex = restLines.indexOf('\r')
 	const body = restLines.slice(crlfIndex + 1)
@@ -9,3 +9,5 @@ export const requestParser = (requestData) => {
 	)
 	return { headers, body, method, path, httpVersion }
 }
+
+module.exports = { requestParser }

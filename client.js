@@ -17,20 +17,20 @@ const handleResponse = (res) => {
 }
 
 const makeGetResponse = () => {
-	const getOptions = {
+	const options = {
 		hostname: 'localhost',
 		port: 8000,
 		path: '/',
 		method: 'GET'
 	}
 
-	const getRequest = http.request(getOptions, handleResponse)
+	const request = http.request(options, handleResponse)
 
 	request.on('error', (err) => {
 		console.error(`Error during request: ${err.message}`)
 	})
 
-	getRequest.end()
+	request.end()
 }
 
 const makePostRequest = () => {
