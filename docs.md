@@ -1,0 +1,11 @@
+- unrecognized status code shouldnt be cached
+- request = simple request | full request
+- Entity
+- unrecognized header fields
+- All 1xx (informational), 204 (no content), and 304 (not modified) responses must not include a body.
+- no media type => determine through content eg simple-response
+- undetermined media type => application/octet-stream
+- No content length => bad request
+- encoding
+- methods
+- chunks or streams

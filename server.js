@@ -12,7 +12,3 @@ const server = http.createServer(requestHandler)
 server.listen(port, host, function () {
 	console.log(`Server has started on port ${port} at ${host}`)
 })
-
-// encoding
-// methods
-// chunks or streams

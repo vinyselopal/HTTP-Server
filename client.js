@@ -16,7 +16,7 @@ const handleResponse = (res) => {
 	})
 }
 
-const makeGetResponse = () => {
+const makeGetRequest = () => {
 	const options = {
 		hostname: 'localhost',
 		port: 8000,
@@ -61,5 +61,5 @@ const makePostRequest = () => {
 	request.end()
 }
 
-makeGetResponse()
+makeGetRequest()
 makePostRequest()
