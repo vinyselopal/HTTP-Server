@@ -9,3 +9,19 @@
 - encoding
 - methods
 - chunks or streams
+- Variations of requests
+	- Content type: <media-type><charset>
+		- Forms: multipart (boundary), url-encoded (ampersand)
+		- media: text/html, application/json, octet/stream
+		- charset: utf, iso
+
+Todos:
+- Streams and Buffers
+- Socket pool
+- Keep Alive
+- Chunked Transfer Encoding
+- Using with Express middlewares
+- bodyParser (middleware checks content type and parses), sock.end etc to be called from middlewares
+- Code quality
+- Handle Express next with generators
+- writeHead

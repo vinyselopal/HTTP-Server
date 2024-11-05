@@ -25,10 +25,10 @@ const requestParser = (requestData) => {
 			return parseBody(str)
 		}
 		const splitHeadersFromBody = str.split("\r\n\r\n")
-		const splitArr = str.split('\r\n')
-		const restLines = splitArr.pop()
+		const splitArr = splitHeadersFromBody[0].split('\r\n')
+		const restLines = splitHeadersFromBody.pop()
 		console.log("splitArr", splitArr, "restLines", restLines)
-		const headers = Object.fromEntries((splitArr.slice(0, splitArr.length - 1).map(headerStr => [headerStr.slice(0, headerStr.indexOf(":")), headerStr.slice(headerStr.indexOf(":") + 1)])))
+		const headers = Object.fromEntries((splitArr.slice(0, splitArr.length).map(headerStr => [headerStr.slice(0, headerStr.indexOf(":")), headerStr.slice(headerStr.indexOf(":") + 1)])))
 		console.log("headers parsed", request, headers)
 		request.headers = headers
 		if (restLines) {
