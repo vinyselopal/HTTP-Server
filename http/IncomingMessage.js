@@ -4,11 +4,14 @@ const { parseRequest } = require("./requestParser.js");
 class IncomingMessage extends Readable {
   length;
   request;
+  requestHandler;
+
   constructor(sock, requestHandler, options) {
     super(options);
     this.length = 0;
     this.request = {};
     this.prevRemain = "";
+    this.requestHandler = requestHandler;
 
     sock.on("data", (data) => {
       const newData = data.toString();
@@ -27,11 +30,9 @@ class IncomingMessage extends Readable {
   processRequest() {
     const response = responseBuilder(request, sock);
     bodyParser(request);
-    requestHandler(request, response);
+    this.requestHandler(request, response);
   }
-  _read () {
-
-  }
+  _read() {}
 }
 
 module.exports = { IncomingMessage };
