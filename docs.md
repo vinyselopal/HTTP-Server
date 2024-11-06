@@ -10,10 +10,10 @@
 - methods
 - chunks or streams
 - Variations of requests
-	- Content type: <media-type><charset>
-		- Forms: multipart (boundary), url-encoded (ampersand)
-		- media: text/html, application/json, octet/stream
-		- charset: utf, iso
+    - Content type: <media-type><charset>
+        - Forms: multipart (boundary), url-encoded (ampersand)
+        - media: text/html, application/json, octet/stream
+        - charset: utf, iso
 
 Todos:
 - Streams and Buffers
@@ -25,3 +25,4 @@ Todos:
 - Code quality
 - Handle Express next with generators
 - writeHead
+- use OOPs
