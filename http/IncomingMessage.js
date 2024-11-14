@@ -1,5 +1,6 @@
 const { Readable } = require("stream");
 const { parseRequest } = require("./requestParser.js");
+const { ServerResponse } = require("./response.js");
 
 class IncomingMessage extends Readable {
   length;
@@ -28,8 +29,7 @@ class IncomingMessage extends Readable {
   }
 
   processRequest() {
-    const response = responseBuilder(request, sock);
-    bodyParser(request);
+    const response = new ServerResponse(sock, request)
     this.requestHandler(request, response);
   }
   _read() {}
