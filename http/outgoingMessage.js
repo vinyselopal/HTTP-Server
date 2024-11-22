@@ -1,26 +1,53 @@
 const { Writable } = require("stream");
 
 class OutgoingMessage extends Writable {
-  responseTitle = "";
-  headersStr = "";
-  bodyStr = "";
-  constructor(sock, data, options) {
-    super(options);
+  sock;
+  headers;
+  responseTitle;
+  responseLineFlushed;
+  headersFlushed;
+  constructor(sock) {
+    super();
+    console.log("outgoingmessage", sock);
     this.sock = sock;
   }
-  write(body, encoding, callback) {
-    const msg = `${this.responseTitle}\r\n${this.headersStr}\r\n${body}`;
-    this.write(msg, encoding, callback);
+  write(chunk) {
+    console.log("inside outgoing message write");
+    if (!this.responseLineFlushed) {
+      this.responseTitle = "HTTP/1.1 200 OK\r\n";
+      this.sock.write(this.responseTitle);
+      this.responseLineFlushed = true;
+    }
+    if (!this.headersFlushed) {
+      this.addGeneralHeaders();
+      this.sock.write(this.makeHeadersStr());
+      this.headersFlushed = true;
+      this.sock.write("\r\n");
+    }
+    this.sock.write(chunk);
+    console.log("write end", chunk.toString());
   }
-  makeHeadersStr(headers) {
-    if (this.headersStr.length) return;
-    Object.keys(headers).forEach((header) => {
-      this.headersStr += `${header}:${headers[header]}\r\n`;
-    });
+  writeHead(statusCode, statusMessage, headers) {
+    if (!this.responseLineFlushed) {
+      this.responseTitle = `HTTP/1.1 ${statusCode} ${statusMessage}\r\n`;
+      this.sock.write(this.responseTitle);
+      this.responseLineFlushed = true;
+    }
+    if (!this.headersFlushed) {
+      this.headers = headers;
+      this.sock.write(this.makeHeadersStr());
+      this.headersFlushed = true;
+      this.sock.write("\r\n");
+    }
   }
-  makeResponseTitle(httpVersion, responseCode) {
-    this.responseTitle(`${httpVersion}${responseCode}`);
+  makeHeadersStr() {
+    return Object.keys(this.headers).reduce((prevStr, currHeader) => {
+      return `${prevStr}${currHeader}:${this.headers[currHeader]}\r\n`;
+    }, "");
+  }
+  addGeneralHeaders() {
+    this.headers = {};
   }
 }
 
-module.exports = {OutgoingMessage}
+module.exports = { OutgoingMessage };

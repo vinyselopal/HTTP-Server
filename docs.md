@@ -1,28 +1,27 @@
-- unrecognized status code shouldnt be cached
 - request = simple request | full request
-- Entity
-- unrecognized header fields
-- All 1xx (informational), 204 (no content), and 304 (not modified) responses must not include a body.
-- no media type => determine through content eg simple-response
-- undetermined media type => application/octet-stream
-- No content length => bad request
-- encoding
-- methods
-- chunks or streams
-- Variations of requests
-    - Content type: <media-type><charset>
-        - Forms: multipart (boundary), url-encoded (ampersand)
-        - media: text/html, application/json, octet/stream
-        - charset: utf, iso
-
-Todos:
 - Streams and Buffers
+- Handle Express next with generators
+- Serve body usng streams and json without
+- According to ExpressJS spec
+    - error handling with req-res cycle, eg. whether req has been sent
+    - express middlewares
+    - CORS, same origin, etc.
+- caching
+- downloading
+- handling different status codes
+    - Some status codes dont include body
+    - No content length => bad request
+    - handle unrecognized header fields
+- URI
+- expiration
+- dates
+- character sets
 - Socket pool
 - Keep Alive
 - Chunked Transfer Encoding
-- Using with Express middlewares
-- bodyParser (middleware checks content type and parses), sock.end etc to be called from middlewares
-- Code quality
-- Handle Express next with generators
-- writeHead
-- use OOPs
+- Spec documentation
+- Forms: multipart (boundary), url-encoded (ampersand)
+
+
+        request                     response
+sock -> IncomingMessage (readable stream) -> OutgoingMessage (writable stream)-> sock

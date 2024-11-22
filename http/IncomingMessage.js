@@ -1,38 +1,55 @@
 const { Readable } = require("stream");
 const { parseRequest } = require("./requestParser.js");
-const { ServerResponse } = require("./response.js");
+const { OutgoingMessage } = require("./outgoingMessage.js");
+const { bodyParser } = require("./bodyParser.js");
 
 class IncomingMessage extends Readable {
   length;
-  request;
   requestHandler;
-
-  constructor(sock, requestHandler, options) {
-    super(options);
+  headers;
+  body = "";
+  method;
+  path;
+  httpVersion;
+  url;
+  sock;
+  constructor(sock, requestHandler) {
+    super();
     this.length = 0;
-    this.request = {};
-    this.prevRemain = "";
+    this.prevRemain = Buffer.from("");
     this.requestHandler = requestHandler;
+    this.sock = sock;
 
     sock.on("data", (data) => {
-      const newData = data.toString();
-      console.log("newdata", newData);
-      this.push(newData);
+      console.log("data", data);
+      this.push(data);
 
-      parseRequest(this.prevRemain + newData, this.request);
-      this.length += newData.length;
+      this.prevRemain = parseRequest(
+        Buffer.concat([this.prevRemain, data]),
+        this
+      );
+      this.length += data.length;
 
-      if (this.length === this.request.headers["Content-Length"]) {
-        processRequest();
+      console.log("body length", this.body.length);
+      console.log("header content length", this.headers["Content-Length"]);
+
+      if (this.body.length == this.headers["Content-Length"]) {
+        // change to === after handling in headersParser
+        console.log("content length reached");
+        this.processRequest();
       }
     });
   }
 
   processRequest() {
-    const response = new ServerResponse(sock, request)
-    this.requestHandler(request, response);
+    const response = new OutgoingMessage(this.sock, this);
+    this.requestHandler(this, response);
   }
   _read() {}
+
+  bodyParser() {
+    bodyParser(this);
+  }
 }
 
 module.exports = { IncomingMessage };
