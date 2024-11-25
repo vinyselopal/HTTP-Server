@@ -51,6 +51,7 @@ const parseRequest = (requestData, request) => {
         request.headers = headers;
         request.url = request.headers["Host"] + request.path;
         console.log("url", request.url);
+        request.processRequest();
         return parseBody(buf.slice(pair[0] + 4));
       }
     }
@@ -58,15 +59,10 @@ const parseRequest = (requestData, request) => {
   };
 
   const parseBody = (buf) => {
-    if (request.body) return buf;
-    const charEncoding =
-      typeof request.headers["Content-Type"] === "string" ||
-      !request.headers["Content-Type"]
-        ? "utf-8"
-        : request.headers["Content-Type"][1]; // hack, handle in headersParser
-    console.log("buf", buf.toString(charEncoding));
-    request.body += buf.toString(charEncoding);
-    console.log("body parsed", request);
+    request.bodyBytesReceived += buf.length;
+    request.push(buf);
+    if (request.bodyBytesReceived == request.headers["Content-Length"])
+      request.push(null);
   };
 
   parseRequestLine(requestData);

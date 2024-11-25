@@ -22,6 +22,5 @@
 - Spec documentation
 - Forms: multipart (boundary), url-encoded (ampersand)
 
-
         request                     response
 sock -> IncomingMessage (readable stream) -> OutgoingMessage (writable stream)-> sock

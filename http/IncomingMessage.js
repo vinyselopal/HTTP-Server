@@ -7,12 +7,12 @@ class IncomingMessage extends Readable {
   length;
   requestHandler;
   headers;
-  body = "";
   method;
   path;
   httpVersion;
   url;
   sock;
+  bodyBytesReceived = 0
   constructor(sock, requestHandler) {
     super();
     this.length = 0;
@@ -22,22 +22,12 @@ class IncomingMessage extends Readable {
 
     sock.on("data", (data) => {
       console.log("data", data);
-      this.push(data);
 
       this.prevRemain = parseRequest(
         Buffer.concat([this.prevRemain, data]),
         this
-      );
+      ); // parse in express middleware
       this.length += data.length;
-
-      console.log("body length", this.body.length);
-      console.log("header content length", this.headers["Content-Length"]);
-
-      if (this.body.length == this.headers["Content-Length"]) {
-        // change to === after handling in headersParser
-        console.log("content length reached");
-        this.processRequest();
-      }
     });
   }
 
@@ -45,7 +35,9 @@ class IncomingMessage extends Readable {
     const response = new OutgoingMessage(this.sock, this);
     this.requestHandler(this, response);
   }
-  _read() {}
+  _read() {
+
+  }
 
   bodyParser() {
     bodyParser(this);

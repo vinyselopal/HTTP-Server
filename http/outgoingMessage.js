@@ -34,6 +34,7 @@ class OutgoingMessage extends Writable {
       this.responseLineFlushed = true;
     }
     if (!this.headersFlushed) {
+      console.log("in writeHead", this);
       this.headers = headers;
       this.sock.write(this.makeHeadersStr());
       this.headersFlushed = true;
